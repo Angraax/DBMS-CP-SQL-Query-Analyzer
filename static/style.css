@@ -433,15 +433,15 @@ body::before {
 .card {
     background: var(--bg-card);
     backdrop-filter: blur(12px);
-    border: 1px solid var(--border-subtle);
+    border: 1px solid rgba(148, 163, 184, 0.08);
     border-radius: var(--radius-lg);
     padding: 24px;
-    margin-bottom: 20px;
-    box-shadow: var(--shadow-md);
+    margin-bottom: 16px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
     transition: border-color var(--transition-normal);
 }
 
-.card:hover { border-color: var(--border-medium); }
+.card:hover { border-color: rgba(148, 163, 184, 0.15); }
 
 /* ── Query Input ── */
 .query-section { animation: fadeInUp 0.4s var(--transition-slow); }
@@ -625,6 +625,23 @@ body::before {
    ═══════════════════════════════════════════════════════════ */
 .results { display: none; animation: fadeInUp 0.4s var(--transition-slow); }
 .results.visible { display: block; }
+
+/* ── Section Grouping ── */
+.section-group {
+    margin-bottom: 32px;
+}
+
+.section-header {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border-subtle);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
 
 /* ── Complexity Score Display (Enhanced) ── */
 .result-card--complexity .result-card__title { color: var(--accent-violet); }
@@ -982,6 +999,17 @@ body::before {
     color: var(--text-muted);
     font-size: 0.82rem;
     font-style: italic;
+}
+
+.empty-state--info {
+    text-align: left;
+    padding: 14px 18px;
+    background: rgba(59, 130, 246, 0.08);
+    border-left: 3px solid var(--accent-blue);
+    border-radius: var(--radius-sm);
+    color: var(--text-primary);
+    font-size: 0.85rem;
+    font-weight: 500;
 }
 
 /* ── Code ── */

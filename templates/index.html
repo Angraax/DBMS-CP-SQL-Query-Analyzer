@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="SQL Query Analyzer v2.0 — Analyze, optimize, and understand SQL queries with schema viewer, database upload, and execution plans.">
-    <title>SQL Query Analyzer v2.0</title>
+    <meta name="description" content="QueryInsight v2.0 — Analyze, optimize, and understand SQL queries with schema viewer, database upload, and execution plans.">
+    <title>QueryInsight v2.0</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>&#x1F50D;</text></svg>">
 </head>
@@ -21,7 +21,7 @@
         <div class="sidebar__header">
             <div class="sidebar__logo">
                 <span class="sidebar__logo-icon">&#x1F50D;</span>
-                <span class="sidebar__logo-text">SQL Analyzer</span>
+                <span class="sidebar__logo-text">QueryInsight</span>
             </div>
             <div class="sidebar__version">v2.0 &mdash; Enhanced Edition</div>
         </div>
@@ -72,8 +72,8 @@
 
         <!-- Header -->
         <header class="header" id="header">
-            <h1 class="header__title">SQL Query Analyzer</h1>
-            <p class="header__subtitle">Paste a SELECT query to get instant performance insights, optimization tips &amp; rewritten queries</p>
+            <h1 class="header__title">QueryInsight</h1>
+            <p class="header__subtitle">Analyze SQL queries for performance insights and optimization recommendations.</p>
         </header>
 
         <!-- Query Input Card -->
@@ -114,6 +114,10 @@
 
         <!-- Results Section -->
         <section class="results" id="results">
+
+            <!-- 📊 Query Analysis Section -->
+            <div class="section-group">
+                <h2 class="section-header">📊 Query Analysis</h2>
 
             <!-- Final Summary Block (NEW) -->
             <div class="card result-card result-card--summary" id="summary-card">
@@ -180,18 +184,13 @@
                 </div>
                 <div id="index-content"></div>
             </div>
-
-            <!-- Execution Plan -->
-            <div class="card result-card result-card--plan" id="plan-card">
-                <div class="result-card__header">
-                    <span class="result-card__icon">&#x1F4CA;</span>
-                    <span class="result-card__title">Execution Plan</span>
-                </div>
-                <p class="section-label">Raw EXPLAIN QUERY PLAN Output</p>
-                <div class="plan-raw" id="plan-raw"></div>
-                <p class="section-label">Interpreted Explanation</p>
-                <div id="plan-interpreted"></div>
             </div>
+
+            <!-- ⚙️ Optimization Section -->
+            <div class="section-group">
+                <h2 class="section-header">⚙️ Optimization</h2>
+
+
 
             <!-- Optimized Query -->
             <div class="card result-card result-card--optimized" id="optimized-card">
@@ -206,6 +205,23 @@
                 </div>
                 <p class="section-label">Changes Applied</p>
                 <ul class="optimized-changes" id="optimized-changes"></ul>
+            </div>
+            </div>
+
+            <!-- 📈 Performance Section -->
+            <div class="section-group">
+                <h2 class="section-header">📈 Performance</h2>
+
+            <!-- Execution Plan -->
+            <div class="card result-card result-card--plan" id="plan-card">
+                <div class="result-card__header">
+                    <span class="result-card__icon">&#x1F4CA;</span>
+                    <span class="result-card__title">Execution Plan</span>
+                </div>
+                <p class="section-label">Raw EXPLAIN QUERY PLAN Output</p>
+                <div class="plan-raw" id="plan-raw"></div>
+                <p class="section-label">Interpreted Explanation</p>
+                <div id="plan-interpreted"></div>
             </div>
 
             <!-- Performance Comparison (NEW) -->
@@ -225,6 +241,7 @@
                     </div>
                 </div>
                 <div class="comparison-verdict" id="comparison-verdict"></div>
+            </div>
             </div>
 
         </section>

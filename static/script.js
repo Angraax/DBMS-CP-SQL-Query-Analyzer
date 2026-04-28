@@ -467,8 +467,8 @@ function renderComparison(comparison) {
 
     // If comparison was skipped (no valid optimized query), show status message
     if (comparison.skipped) {
-        origEl.innerHTML = '<div class="empty-state">ℹ️ Comparison skipped — no optimization was applied</div>';
-        optEl.innerHTML = '<div class="empty-state">ℹ️ Comparison skipped — no optimization was applied</div>';
+        origEl.innerHTML = '<div class="empty-state empty-state--info">ℹ️ No comparison performed — query is already optimized.</div>';
+        optEl.innerHTML = '<div class="empty-state empty-state--info">ℹ️ No comparison performed — query is already optimized.</div>';
         verdictEl.className = 'comparison-verdict comparison-verdict--same';
         verdictEl.innerHTML = `<span>ℹ️</span> <span>${comparison.improvements.join(', ')}</span>`;
         return;
@@ -482,7 +482,7 @@ function renderComparison(comparison) {
         origEl.appendChild(div);
     });
     if (comparison.original.length === 0) {
-        origEl.innerHTML = '<div class="empty-state">No plan data</div>';
+        origEl.innerHTML = '<div class="empty-state empty-state--info">ℹ️ No plan data</div>';
     }
 
     // Render optimized plan lines
@@ -493,7 +493,7 @@ function renderComparison(comparison) {
         optEl.appendChild(div);
     });
     if (comparison.optimized.length === 0) {
-        optEl.innerHTML = '<div class="empty-state">No plan data</div>';
+        optEl.innerHTML = '<div class="empty-state empty-state--info">ℹ️ No plan data</div>';
     }
 
     // Verdict
@@ -517,7 +517,10 @@ function renderList(type, items) {
     list.innerHTML = '';
 
     if (items.length === 0) {
-        list.innerHTML = `<li class="empty-state">No ${type} detected!</li>`;
+        let emoji = 'ℹ️';
+        if (type === 'issues') emoji = '✅';
+        if (type === 'warnings') emoji = '✅';
+        list.innerHTML = `<div class="empty-state empty-state--info">${emoji} No ${type} detected!</div>`;
         return;
     }
 
@@ -540,7 +543,7 @@ function renderPlan(plan) {
     interpEl.innerHTML = '';
 
     if (plan.interpretation.length === 0) {
-        interpEl.innerHTML = '<div class="empty-state">No interpretation available.</div>';
+        interpEl.innerHTML = '<div class="empty-state empty-state--info">ℹ️ No interpretation available.</div>';
         return;
     }
 
@@ -571,15 +574,14 @@ function renderOptimized(optimized) {
         const statusMessage = optimized.status_message || 'No optimizations needed — query looks good!';
 
         let icon = 'ℹ️';
-        let cssClass = 'empty-state';
+        let cssClass = 'empty-state empty-state--info';
         if (status === 'already_optimal') {
             icon = '✅';
         } else if (status === 'skipped') {
-            icon = '⚠️';
-            cssClass = 'empty-state empty-state--warning';
+            icon = 'ℹ️';
         }
 
-        changesList.innerHTML = `<li class="${cssClass}">${icon} ${statusMessage}</li>`;
+        changesList.innerHTML = `<div class="${cssClass}">${icon} ${statusMessage}</div>`;
         return;
     }
 
