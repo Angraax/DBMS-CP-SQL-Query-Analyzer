@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="SQL Query Analyzer v2.0 — Analyze, optimize, and understand SQL queries with schema viewer, database upload, and execution plans.">
+    <title>SQL Query Analyzer v2.0</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>&#x1F50D;</text></svg>">
+</head>
+<body>
+
+<div class="app-layout">
+
+    <!-- ═══════════════════════════════════════
+         LEFT SIDEBAR — Schema + DB Controls
+         ═══════════════════════════════════════ -->
+    <aside class="sidebar" id="sidebar">
+
+        <!-- Logo -->
+        <div class="sidebar__header">
+            <div class="sidebar__logo">
+                <span class="sidebar__logo-icon">&#x1F50D;</span>
+                <span class="sidebar__logo-text">SQL Analyzer</span>
+            </div>
+            <div class="sidebar__version">v2.0 &mdash; Enhanced Edition</div>
+        </div>
+
+        <!-- Database Selector -->
+        <div class="db-section">
+            <div class="db-section__label">Active Database</div>
+            <select class="db-select" id="db-select" onchange="switchDatabase()">
+                <option value="default">Default Sample Database</option>
+            </select>
+            <div class="db-active-badge" id="db-badge">
+                <span class="db-active-badge__dot"></span>
+                <span id="db-badge-name">Default Sample Database</span>
+            </div>
+        </div>
+
+        <!-- Upload Section -->
+        <div class="upload-section">
+            <div class="db-section__label">Upload Database</div>
+            <div class="upload-area" id="upload-area">
+                <input type="file" class="upload-input" id="upload-input" accept=".db,.sqlite,.sqlite3" onchange="uploadFile(this)">
+                <div class="upload-area__icon">&#x1F4C1;</div>
+                <div class="upload-area__text">Click or drag a .db / .sqlite file</div>
+                <div class="upload-area__hint">Max 16 MB</div>
+            </div>
+            <div class="upload-status" id="upload-status"></div>
+            <button class="btn-reset" id="btn-reset" onclick="resetDatabase()">
+                &#x21BA; Reset to Default Database
+            </button>
+        </div>
+
+        <!-- Schema Viewer -->
+        <div class="schema-section">
+            <div class="schema-section__title">
+                &#x1F4CB; Schema Viewer
+            </div>
+            <div id="schema-container">
+                <div class="schema-empty">Loading schema...</div>
+            </div>
+        </div>
+
+    </aside>
+
+    <!-- ═══════════════════════════════════════
+         RIGHT PANEL — Query + Results
+         ═══════════════════════════════════════ -->
+    <main class="main-panel">
+
+        <!-- Header -->
+        <header class="header" id="header">
+            <h1 class="header__title">SQL Query Analyzer</h1>
+            <p class="header__subtitle">Paste a SELECT query to get instant performance insights, optimization tips &amp; rewritten queries</p>
+        </header>
+
+        <!-- Query Input Card -->
+        <section class="card query-section" id="query-section">
+            <div class="query-section__label">
+                <span class="dot"></span>
+                SQL Query Input
+            </div>
+
+            <textarea
+                id="query-input"
+                class="query-textarea"
+                placeholder="SELECT u.name, o.product&#10;FROM users u&#10;JOIN orders o ON u.id = o.user_id&#10;WHERE o.amount > 100;"
+                spellcheck="false"
+                autocomplete="off"
+            ></textarea>
+
+            <!-- Error Box -->
+            <div class="error-box" id="error-box">
+                <span>&#x1F6AB;</span>
+                <span id="error-message"></span>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="btn-row">
+                <button class="btn btn--primary" id="analyze-btn" onclick="analyzeQuery()">
+                    <span class="spinner" id="spinner"></span>
+                    <span class="btn-text">&#x26A1; Analyze Query</span>
+                </button>
+                <div class="samples-dropdown">
+                    <button class="btn btn--secondary" id="samples-btn" onclick="toggleSamples()">
+                        &#x1F4CB; Sample Queries
+                    </button>
+                    <div class="samples-list" id="samples-list"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Results Section -->
+        <section class="results" id="results">
+
+            <!-- Final Summary Block (NEW) -->
+            <div class="card result-card result-card--summary" id="summary-card">
+                <div class="result-card__header">
+                    <span class="result-card__icon">📌</span>
+                    <span class="result-card__title">Summary</span>
+                </div>
+                <div class="summary-content" id="summary-content" style="padding: 0.5rem 0; font-weight: 500; font-size: 1.05rem;"></div>
+            </div>
+
+            <!-- Complexity Score (Enhanced) -->
+            <div class="card result-card result-card--complexity" id="complexity-card">
+                <div class="result-card__header">
+                    <span class="result-card__icon">&#x1F4CA;</span>
+                    <span class="result-card__title">Query Complexity Score</span>
+                </div>
+                <div class="complexity-display" id="complexity-display">
+                    <div class="complexity-score-circle" id="complexity-circle">
+                        <span class="complexity-score-number" id="complexity-score-number">0</span>
+                    </div>
+                    <div class="complexity-meta">
+                        <div class="complexity-level-text" id="complexity-level-text">—</div>
+                        <div class="complexity-desc" id="complexity-desc">—</div>
+                    </div>
+                </div>
+                <div class="complexity-breakdown" id="complexity-breakdown"></div>
+            </div>
+
+            <!-- Issues -->
+            <div class="card result-card result-card--issues" id="issues-card">
+                <div class="result-card__header">
+                    <span class="result-card__icon">&#x274C;</span>
+                    <span class="result-card__title">Issues</span>
+                    <span class="result-card__count" id="issues-count">0</span>
+                </div>
+                <ul class="result-list" id="issues-list"></ul>
+            </div>
+
+            <!-- Warnings -->
+            <div class="card result-card result-card--warnings" id="warnings-card">
+                <div class="result-card__header">
+                    <span class="result-card__icon">&#x26A0;&#xFE0F;</span>
+                    <span class="result-card__title">Warnings</span>
+                    <span class="result-card__count" id="warnings-count">0</span>
+                </div>
+                <ul class="result-list" id="warnings-list"></ul>
+            </div>
+
+            <!-- Suggestions -->
+            <div class="card result-card result-card--suggestions" id="suggestions-card">
+                <div class="result-card__header">
+                    <span class="result-card__icon">&#x2705;</span>
+                    <span class="result-card__title">Suggestions</span>
+                    <span class="result-card__count" id="suggestions-count">0</span>
+                </div>
+                <ul class="result-list" id="suggestions-list"></ul>
+            </div>
+
+            <!-- Smart Index Recommendation (NEW) -->
+            <div class="card result-card result-card--index" id="index-card">
+                <div class="result-card__header">
+                    <span class="result-card__icon">&#x1F9E0;</span>
+                    <span class="result-card__title">Smart Index Recommendation</span>
+                </div>
+                <div id="index-content"></div>
+            </div>
+
+            <!-- Execution Plan -->
+            <div class="card result-card result-card--plan" id="plan-card">
+                <div class="result-card__header">
+                    <span class="result-card__icon">&#x1F4CA;</span>
+                    <span class="result-card__title">Execution Plan</span>
+                </div>
+                <p class="section-label">Raw EXPLAIN QUERY PLAN Output</p>
+                <div class="plan-raw" id="plan-raw"></div>
+                <p class="section-label">Interpreted Explanation</p>
+                <div id="plan-interpreted"></div>
+            </div>
+
+            <!-- Optimized Query -->
+            <div class="card result-card result-card--optimized" id="optimized-card">
+                <div class="result-card__header">
+                    <span class="result-card__icon">&#x1F680;</span>
+                    <span class="result-card__title">Optimized Query</span>
+                </div>
+                <p class="section-label">Rewritten Query</p>
+                <div class="optimized-query-block" id="optimized-query">
+                    <button class="copy-btn" onclick="copyOptimized()">Copy</button>
+                    <span id="optimized-query-text"></span>
+                </div>
+                <p class="section-label">Changes Applied</p>
+                <ul class="optimized-changes" id="optimized-changes"></ul>
+            </div>
+
+            <!-- Performance Comparison (NEW) -->
+            <div class="card result-card result-card--comparison" id="comparison-card">
+                <div class="result-card__header">
+                    <span class="result-card__icon">&#x1F50D;</span>
+                    <span class="result-card__title">Performance Comparison</span>
+                </div>
+                <div class="comparison-grid" id="comparison-grid">
+                    <div class="comparison-col">
+                        <div class="comparison-col__title">Original Query</div>
+                        <div id="comparison-original"></div>
+                    </div>
+                    <div class="comparison-col">
+                        <div class="comparison-col__title">Optimized Query</div>
+                        <div id="comparison-optimized"></div>
+                    </div>
+                </div>
+                <div class="comparison-verdict" id="comparison-verdict"></div>
+            </div>
+
+        </section>
+
+    </main>
+</div>
+
+<script src="{{ url_for('static', filename='script.js') }}"></script>
+
+</body>
+</html>
